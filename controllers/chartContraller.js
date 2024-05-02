@@ -55,6 +55,46 @@ exports.getChartData9 = (req, res) => {
 //     });
 // };
 
+
+exports.getChartData11 = (req, res) => {
+    db.query("SELECT page,SUM(duration) AS total_duration FROM interactions WHERE event = 'visit' GROUP BY page; ", (error, results, fields) => {
+        if (error) throw error;
+        res.json(results);
+    });
+};
+
+exports.getDonnées = (req, res) => {
+    const trackingId = req.query.trackingId; // Récupérer le tracking_id à partir de la requête
+    // Récupérer les données d'interaction correspondantes à partir du tracking_id
+    db.query('SELECT * FROM interactions WHERE tracking_id = ?', [trackingId], (error, interactionResults) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Une erreur s\'est produite lors de la récupération des données d\'interaction.' });
+        }
+        // Renvoyer les données d'interaction au format JSON
+        res.json({ interactions: interactionResults });
+    });
+};
+
+
+exports.getDonnées = (req, res) => {
+    const trackingId = req.query.trackingId; // Récupérer le tracking_id à partir de la requête
+    // Récupérer les données d'interaction correspondantes à partir du tracking_id
+    db.query('SELECT * FROM interactions WHERE tracking_id = ?', [trackingId], (error, interactionResults) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Une erreur s\'est produite lors de la récupération des données d\'interaction.' });
+        }
+        // Rendre le template Handlebars avec les données d'interaction
+        const templateWithData = handlebars.compile(template)({ interactions: interactionResults });
+        // Renvoyer la page HTML rendue
+        res.send(templateWithData);
+    });
+};
+
+
+
+
 exports.getChartData1 = (req, res) => {
     const trackingId = req.query.trackingId;
     // Obtenir l'année courante pour concaténer avec le mois et le jour
@@ -149,47 +189,5 @@ exports.getChartData3 = (req, res) => {
             return res.status(500).json({ message: 'Une erreur s\'est produite lors de la récupération des données démographiques.' });
         }
         res.json(results);
-    });
-};
-
-
-
-
-
-
-
-exports.getChartData11 = (req, res) => {
-    db.query("SELECT page,SUM(duration) AS total_duration FROM interactions WHERE event = 'visit' GROUP BY page; ", (error, results, fields) => {
-        if (error) throw error;
-        res.json(results);
-    });
-};
-
-exports.getDonnées = (req, res) => {
-    const trackingId = req.query.trackingId; // Récupérer le tracking_id à partir de la requête
-    // Récupérer les données d'interaction correspondantes à partir du tracking_id
-    db.query('SELECT * FROM interactions WHERE tracking_id = ?', [trackingId], (error, interactionResults) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).json({ message: 'Une erreur s\'est produite lors de la récupération des données d\'interaction.' });
-        }
-        // Renvoyer les données d'interaction au format JSON
-        res.json({ interactions: interactionResults });
-    });
-};
-
-
-exports.getDonnées = (req, res) => {
-    const trackingId = req.query.trackingId; // Récupérer le tracking_id à partir de la requête
-    // Récupérer les données d'interaction correspondantes à partir du tracking_id
-    db.query('SELECT * FROM interactions WHERE tracking_id = ?', [trackingId], (error, interactionResults) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).json({ message: 'Une erreur s\'est produite lors de la récupération des données d\'interaction.' });
-        }
-        // Rendre le template Handlebars avec les données d'interaction
-        const templateWithData = handlebars.compile(template)({ interactions: interactionResults });
-        // Renvoyer la page HTML rendue
-        res.send(templateWithData);
     });
 };
